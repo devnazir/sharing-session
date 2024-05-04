@@ -1,0 +1,20 @@
+#!/bin/bash
+
+folders=$(ls -d */ | sort)
+
+if [ -f README.md ]; then
+    rm README.md
+fi
+
+for folder in $folders; do
+    title=$(echo $folder | tr -d '/')
+    slide_link=$(cat $folder/README.md | grep "slide" | awk '{print $2}')
+    echo $slide_link
+    echo  "Generating $title..."
+
+    sleep 1
+    echo ${title} | tr '[:lower:]' '[:upper:]' | xargs -I {} echo "# {}" >> README.md
+    echo $slide_link >> README.md
+    echo -e " \n" >> README.md
+    
+done
