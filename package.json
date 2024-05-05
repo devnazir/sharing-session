@@ -1,0 +1,20 @@
+{
+  "name": "sharing-session",
+  "version": "1.0.0",
+  "description": "https://docs.google.com/presentation/d/1NS4IiQDTi3jt9qR8bUxAFsFVy6OmoQo344cmtRLr3HQ/edit?usp=sharing",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/devnazir/sharing-session.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/devnazir/sharing-session/issues"
+  },
+  "homepage": "https://github.com/devnazir/sharing-session#readme"
+}
