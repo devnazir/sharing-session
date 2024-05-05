@@ -1,0 +1,123 @@
+#!/bin/bash
+
+function install_gh() {
+    echo "Installing gh..."
+
+    # architecture
+    local arch=$(uname -m)
+
+    case "$OSTYPE" in
+        darwin*)  os="macOS";;
+        msys*)    os="windows";;
+        *)        
+            echo "Currently only support macOS and Windows"
+            exit
+            ;;
+    esac
+
+    case $arch in
+        x86_64) arch="amd64";;
+        aarch64) arch="arm64";;
+        *)  
+            echo "Unsupported architecture: $arch"
+            exit
+        ;;
+    esac
+
+    # download latest gh
+    curl -s https://api.github.com/repos/cli/cli/releases/latest \
+        | grep "browser_download_url.*gh_" \
+        | cut -d: -f 2,3 \
+        | tr -d \" | tr -d ' '  \
+        | grep $os \
+        | grep $arch \
+        | xargs -I {} curl -O -L {}
+
+    # unzip zip file
+    unzip gh_*_$os_$arch.zip
+
+    # move gh to /usr/local/bin
+    mv gh_*_$os_$arch/bin/gh /usr/local/bin
+
+    # remove downloaded files
+    rm -rf gh_*_$os_$arch.zip gh_*_$os_$arch
+
+    echo -e "\e[1;32mgh installed successfully\e[0m"
+}
+
+# check gh is installed
+if ! command -v gh &> /dev/null
+then
+    install_gh
+fi
+
+# check user has logged in
+if ! gh auth status &> /dev/null
+then
+    echo -e "\e[1;35mPlease login to github\e[0m"
+    gh auth login --web && echo -e "\e[1;32mLogin success\e[0m"
+fi
+
+current_version=$(git describe --tags)
+
+function is_valid_version() {
+    local version=$1
+    local fixed_version_regex="^v[0-9]+\.[0-9]+\.[0-9]+$";
+    local incremental_version_regex="major|minor|patch";
+
+    local regex="^($fixed_version_regex|$incremental_version_regex)$"
+
+    if [[ $1 =~ $regex ]]; then
+        return 0
+    else
+        return 1
+    fi
+}
+
+function create_release() {
+
+    # create variable to store first argument
+    # if it's not provided, the script will not run
+
+    if [ -z "$1" ]; then
+        echo "Please provide release version"
+        exit
+    fi
+
+    local version=$1    
+
+    # if version is not valid, it will not create new release
+    if ! is_valid_version $version; then
+        echo "Invalid version format. Please use semver format"
+        exit
+    fi
+
+    echo "Creating new release..."
+    tag=$(npm version $1 2>error_create_release.txt)
+
+    if [ $? -ne 0 ]; then
+        echo "Failed to create new release"
+        cat error_create_release.txt
+
+        exit
+    fi
+
+    # remove error file
+    rm error_create_release.txt
+
+    git push -u origin master --tags
+
+    gh release create $tag --generate-notes --verify-tag --draft --target master
+}
+
+gh_flags="--json isDraft --json url --json tagName"
+release_data=$(gh release view $current_version $gh_flags 2>/dev/null) 
+isDraft=$(echo $release_data | grep "\"isDraft\":true")
+
+# when current version is still draft, it will not create new release
+if [ $isDraft ]; then
+    echo -e "Current version is draft, can't create new release\n"
+    gh release view $current_version $gh_flags
+else 
+    create_release $@
+fi
