@@ -58,7 +58,7 @@ then
     gh auth login --web && echo -e "\e[1;32mLogin success\e[0m"
 fi
 
-current_version=$(git describe --tags)
+current_version=$(git describe --tags &>/dev/null)
 
 function is_valid_version() {
     local version=$1
