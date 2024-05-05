@@ -1,6 +1,6 @@
 {
   "name": "sharing-session",
-  "version": "2.0.0",
+  "version": "3.0.0",
   "description": "https://docs.google.com/presentation/d/1NS4IiQDTi3jt9qR8bUxAFsFVy6OmoQo344cmtRLr3HQ/edit?usp=sharing",
   "main": "index.js",
   "scripts": {
