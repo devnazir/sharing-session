@@ -72,8 +72,10 @@ function create_release() {
         exit
     fi
 
+    yarn config set version-git-message "Bump version to v%s"
+
     echo "Creating new release..."
-    tag=$(npm version $1 2>error_create_release.txt)
+    tag=$(yarn version $1 2>error_create_release.txt)
 
     if [ $? -ne 0 ]; then
         echo "Failed to create new release"
@@ -101,6 +103,13 @@ fi
 if ! command -v gh &> /dev/null
 then
     install_gh
+fi
+
+# check yarn is installed
+if ! command -v yarn &> /dev/null
+then
+    echo "Please install yarn"
+    exit
 fi
 
 # check user has logged in
