@@ -1,5 +1,9 @@
 #!/bin/bash
 
+# This script is used to create new release on github
+# Usage: bash create_release <version> 
+# version: semver format (v1.0.0) or incremental version (major|minor|patch)
+
 function install_gh() {
     echo "Installing gh..."
 
