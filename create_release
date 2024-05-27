@@ -75,7 +75,7 @@ function create_release() {
     yarn config set version-git-message "Bump version to v%s"
 
     echo "Creating new release..."
-    tag=$(yarn version $1 2>error_create_release.txt)
+    tag=$(yarn --new-version $1 2>error_create_release.txt)
 
     if [ $? -ne 0 ]; then
         echo "Failed to create new release"
