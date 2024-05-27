@@ -107,7 +107,7 @@ function create_release() {
 
     git push -u origin master --tags
 
-    gh release create $tag --generate-notes --verify-tag --draft --target master
+    gh release create $tag --generate-notes --verify-tag --draft --target master --dry-run
 }
 
 gh_flags="--json isDraft --json url --json tagName"
