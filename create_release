@@ -45,21 +45,6 @@ function install_gh() {
     echo -e "\e[1;32mgh installed successfully\e[0m"
 }
 
-# check gh is installed
-if ! command -v gh &> /dev/null
-then
-    install_gh
-fi
-
-# check user has logged in
-if ! gh auth status &> /dev/null
-then
-    echo -e "\e[1;35mPlease login to github\e[0m"
-    gh auth login --web && echo -e "\e[1;32mLogin success\e[0m"
-fi
-
-current_version=$(git describe --tags 2>/dev/null)
-
 function is_valid_version() {
     local version=$1
     local fixed_version_regex="^v[0-9]+\.[0-9]+\.[0-9]+$";
@@ -75,15 +60,6 @@ function is_valid_version() {
 }
 
 function create_release() {
-
-    # create variable to store first argument
-    # if it's not provided, the script will not run
-
-    if [ -z "$1" ]; then
-        echo "Please provide release version"
-        exit
-    fi
-
     local version=$1    
 
     # if version is not valid, it will not create new release
@@ -110,6 +86,28 @@ function create_release() {
     gh release create $tag --generate-notes --verify-tag --draft --target master
 }
 
+# check release version is provided
+if [ -z "$1" ]; then
+    echo "Please provide release version"
+    echo "Usage: bash create_release <version>"
+    exit
+fi
+
+# check gh is installed
+if ! command -v gh &> /dev/null
+then
+    install_gh
+fi
+
+# check user has logged in
+if ! gh auth status &> /dev/null
+then
+    echo -e "\e[1;35mPlease login to github\e[0m"
+    gh auth login --web && echo -e "\e[1;32mLogin success\e[0m"
+fi
+
+current_version=$(git describe --tags 2>/dev/null)
+
 gh_flags="--json isDraft --json url --json tagName"
 release_data=$(gh release view $current_version $gh_flags 2>/dev/null) 
 isDraft=$(echo $release_data | grep "\"isDraft\":true")
@@ -119,7 +117,7 @@ if [ $isDraft ]; then
     draft_version=$(gh release view $current_version $gh_flags)
     
     echo -e "Current version is draft, can't create new release\n"
-    echo -e "Draft version: $draft_version\n"
+    echo -e "$draft_version\n"
 else 
     create_release $@
 fi
