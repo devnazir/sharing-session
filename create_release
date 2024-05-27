@@ -107,7 +107,7 @@ function create_release() {
 
     git push -u origin master --tags
 
-    gh release create $tag --generate-notes --verify-tag --draft --target master --dry-run
+    gh release create $tag --generate-notes --verify-tag --draft --target master
 }
 
 gh_flags="--json isDraft --json url --json tagName"
@@ -116,8 +116,10 @@ isDraft=$(echo $release_data | grep "\"isDraft\":true")
 
 # when current version is still draft, it will not create new release
 if [ $isDraft ]; then
+    draft_version=$(gh release view $current_version $gh_flags)
+    
     echo -e "Current version is draft, can't create new release\n"
-    gh release view $current_version $gh_flags
+    echo -e "Draft version: $draft_version\n"
 else 
     create_release $@
 fi
