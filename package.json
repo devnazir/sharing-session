@@ -1,6 +1,6 @@
 {
   "name": "sharing-session",
-  "version": "v10.0.0",
+  "version": "11.0.0",
   "main": "index.js",
   "repository": "git@github.com:devnazir/sharing-session.git",
   "author": "devnazir <nazirbachrululum@gmail.com>",
