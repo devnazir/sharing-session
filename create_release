@@ -75,7 +75,7 @@ function create_release() {
     yarn config set version-git-message "Bump version to v%s"
 
     echo "Creating new release..."
-    tag=$(yarn version $1 2>error_create_release.txt)
+    yarn version --new-version $1 2>error_create_release.txt
 
     if [ $? -ne 0 ]; then
         echo "Failed to create new release"
@@ -87,9 +87,15 @@ function create_release() {
     # remove error file
     rm error_create_release.txt
 
-    git push -u origin master --tags
+    git push origin master --tags
 
-    gh release create $tag --generate-notes --verify-tag --draft --target master
+    if [ $? -ne 0 ]; then
+        echo "Failed to push to remote"
+        exit
+    fi
+
+    new_version=$(git describe --tags)
+    gh release create $new_version --generate-notes --verify-tag --draft --target master
 }
 
 # check release version is provided
@@ -120,7 +126,6 @@ then
 fi
 
 current_version=$(git describe --tags 2>/dev/null)
-echo "Current version: $current_version"
 
 gh_flags="--json isDraft --json url --json tagName"
 release_data=$(gh release view $current_version $gh_flags 2>/dev/null) 
