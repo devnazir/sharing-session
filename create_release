@@ -45,7 +45,7 @@ function create_release() {
 
     new_version=$(git describe --tags)
 
-    git push origin $new_version
+    git push origin master $new_version
 
     if [ $? -ne 0 ]; then
         echo "Failed to push to remote"
